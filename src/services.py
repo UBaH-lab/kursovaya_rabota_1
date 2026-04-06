@@ -1,87 +1,125 @@
-"""Модуль с сервисами для анализа транзакций."""
+"""Модуль с сервисными функциями."""
 
 import json
 import logging
 import re
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
 
-def cashback_categories(
-        data: List[Dict[str, Any]],
-        year: int,
-        month: int
-) -> Dict[str, float]:
-    """
-    Анализ выгодности категорий повышенного кешбэка.
+def cashback_categories(transactions: list[dict[str, Any]], year: int, month: int) -> dict[str, float]:
+    """Возвращает кэшбэк по категориям за месяц."""
+    result = {}
 
-    Args:
-        data: Данные с транзакциями.
-        year: Год для анализа.
-        month: Месяц для анализа.
+    for t in transactions:
+        if "Дата операции" not in t or "Категория" not in t:
+            continue
 
-    Returns:
-        JSON с анализом кешбэка по категориям.
-    """
-    pass
+        date_str = t["Дата операции"]
+        try:
+            if " " in date_str:
+                date = datetime.strptime(date_str, "%d.%m.%Y %H:%M:%S")
+            else:
+                date = datetime.strptime(date_str, "%d.%m.%Y")
+        except (ValueError, TypeError):
+            continue
 
+        if date.year != year or date.month != month:
+            continue
 
-def investment_bank(
-        month: str,
-        transactions: List[Dict[str, Any]],
-        limit: int
-) -> float:
-    """
-    Расчет суммы для Инвесткопилки.
+        category = t["Категория"]
+        cashback = t.get("Кэшбэк")
 
-    Args:
-        month: Месяц в формате YYYY-MM.
-        transactions: Список транзакций.
-        limit: Лимит округления.
+        if cashback is not None:
+            result[category] = result.get(category, 0) + float(cashback)
 
-    Returns:
-        Сумма, которую удалось бы отложить.
-    """
-    pass
+    return {k: float(v) for k, v in sorted(result.items(), key=lambda x: x[1], reverse=True)}
 
 
-def simple_search(query: str, transactions: List[Dict[str, Any]]) -> str:
-    """
-    Простой поиск транзакций по описанию или категории.
+def investment_bank(month: str, transactions: list[dict[str, Any]], limit: int) -> float:
+    """Рассчитывает инвестиции по округлению."""
+    try:
+        dt = datetime.strptime(month, "%Y-%m")
+    except ValueError:
+        return 0.0
 
-    Args:
-        query: Строка для поиска.
-        transactions: Список транзакций.
+    total_investment = 0.0
 
-    Returns:
-        JSON с найденными транзакциями.
-    """
-    pass
+    for t in transactions:
+        if "Дата операции" not in t:
+            continue
+
+        date_str = t["Дата операции"]
+        try:
+            date = datetime.strptime(date_str, "%d.%m.%Y")
+        except (ValueError, TypeError):
+            continue
+
+        if date.year != dt.year or date.month != dt.month:
+            continue
+
+        amount = t.get("Сумма операции", 0)
+        rounded = t.get("Сумма операции с округлением", 0)
+
+        if amount < 0:
+            diff = rounded - abs(amount)
+            if diff <= limit:
+                total_investment += diff
+
+    return round(total_investment, 2)
 
 
-def find_phone_transactions(transactions: List[Dict[str, Any]]) -> str:
-    """
-    Поиск транзакций с номерами телефонов.
+def simple_search(query: str, transactions: list[dict[str, Any]]) -> str:
+    """Простой поиск по транзакциям. Возвращает JSON строку."""
+    if not query:
+        return json.dumps([], ensure_ascii=False)
 
-    Args:
-        transactions: Список транзакций.
+    query_lower = query.lower()
+    results = []
 
-    Returns:
-        JSON с транзакциями, содержащими номера телефонов.
-    """
-    pass
+    for t in transactions:
+        description = str(t.get("Описание", "")).lower()
+        category = str(t.get("Категория", "")).lower()
+
+        if query_lower in description or query_lower in category:
+            results.append(t)
+
+    return json.dumps(results, ensure_ascii=False)
 
 
-def find_person_transfers(transactions: List[Dict[str, Any]]) -> str:
-    """
-    Поиск переводов физическим лицам.
+def find_phone_transactions(transactions: list[dict[str, Any]]) -> str:
+    """Находит транзакции с номерами телефонов. Возвращает JSON строку."""
+    phone_pattern = re.compile(r"[+]?[78][\s\-()]?\d{3}[\s\-()]?\d{3}[\s\-()]?\d{2}[\s\-()]?\d{2}")
+    results = []
 
-    Args:
-        transactions: Список транзакций.
+    for t in transactions:
+        description = str(t.get("Описание", ""))
+        if phone_pattern.search(description):
+            results.append(t)
 
-    Returns:
-        JSON с переводами физлицам.
-    """
-    pass
+    return json.dumps(results, ensure_ascii=False)
+
+
+def find_person_transfers(transactions: list[dict[str, Any]], name: Optional[str] = None) -> str:
+    """Находит переводы физлицам. Возвращает JSON строку."""
+    results = []
+
+    for t in transactions:
+        description = str(t.get("Описание", "")).lower()
+        category = str(t.get("Категория", "")).lower()
+
+        # Проверяем категорию "Переводы"
+        is_transfer_category = "перевод" in category
+
+        # Проверяем ключевые слова в описании
+        transfer_keywords = ["перевод", "sbp", "сбп", "физлиц", "физ.лиц"]
+        has_keyword = any(kw in description for kw in transfer_keywords)
+
+        matches_name = name is None or name.lower() in description
+
+        if (is_transfer_category or has_keyword) and matches_name:
+            results.append(t)
+
+    return json.dumps(results, ensure_ascii=False)
