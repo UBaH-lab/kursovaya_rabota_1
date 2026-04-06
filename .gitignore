@@ -1,4 +1,4 @@
-﻿# Python
+# Python
 __pycache__/
 *.py[cod]
 *.class
@@ -20,11 +20,10 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
+# Virtual Environment
 .venv/
 venv/
 ENV/
-env/
 
 # IDE
 .idea/
@@ -40,6 +39,7 @@ htmlcov/
 
 # Environment
 .env
+.env.local
 
 # Logs
 *.log
