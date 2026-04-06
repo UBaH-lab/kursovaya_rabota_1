@@ -66,7 +66,7 @@ def get_currency_rates(currencies: list[str]) -> dict[str, float]:
                 rates[currency] = None
 
         return rates
-    except Exception:  # <-- ИЗМЕНИТЬ ЭТУ СТРОКУ (было: requests.RequestException)
+    except Exception:
         # Если API недоступен, возвращаем None
         return {currency: None for currency in currencies}
 

@@ -4,8 +4,8 @@ import json
 from datetime import datetime
 from unittest.mock import MagicMock, mock_open, patch
 
-import pytest
 import pandas as pd
+import pytest
 
 from src.utils import (
     format_date,
@@ -16,18 +16,20 @@ from src.utils import (
     load_user_settings,
 )
 
-
 # ===== Тесты для load_transactions =====
+
 
 def test_load_transactions_success(tmp_path):
     """Тест успешной загрузки транзакций."""
     # Создаём тестовый Excel файл
-    df = pd.DataFrame({
-        "Дата операции": ["01.01.2022", "02.01.2022"],
-        "Статус": ["OK", "OK"],
-        "Сумма операции": [-100, -200],
-        "Категория": ["Еда", "Транспорт"],
-    })
+    df = pd.DataFrame(
+        {
+            "Дата операции": ["01.01.2022", "02.01.2022"],
+            "Статус": ["OK", "OK"],
+            "Сумма операции": [-100, -200],
+            "Категория": ["Еда", "Транспорт"],
+        }
+    )
 
     filepath = tmp_path / "test_operations.xlsx"
     df.to_excel(filepath, index=False)
@@ -42,12 +44,14 @@ def test_load_transactions_success(tmp_path):
 
 def test_load_transactions_filter_status(tmp_path):
     """Тест фильтрации по статусу OK."""
-    df = pd.DataFrame({
-        "Дата операции": ["01.01.2022", "02.01.2022", "03.01.2022"],
-        "Статус": ["OK", "FAILED", "OK"],
-        "Сумма операции": [-100, -200, -300],
-        "Категория": ["Еда", "Транспорт", "Еда"],
-    })
+    df = pd.DataFrame(
+        {
+            "Дата операции": ["01.01.2022", "02.01.2022", "03.01.2022"],
+            "Статус": ["OK", "FAILED", "OK"],
+            "Сумма операции": [-100, -200, -300],
+            "Категория": ["Еда", "Транспорт", "Еда"],
+        }
+    )
 
     filepath = tmp_path / "test_operations.xlsx"
     df.to_excel(filepath, index=False)
@@ -60,6 +64,7 @@ def test_load_transactions_filter_status(tmp_path):
 
 
 # ===== Тесты для load_user_settings =====
+
 
 def test_load_user_settings_success(tmp_path):
     """Тест успешной загрузки настроек."""
@@ -82,6 +87,7 @@ def test_load_user_settings_file_not_found():
 
 
 # ===== Тесты для get_currency_rates =====
+
 
 @patch("src.utils.requests.get")
 def test_get_currency_rates_success(mock_get):
@@ -115,6 +121,7 @@ def test_get_currency_rates_api_error(mock_get):
 
 # ===== Тесты для get_stock_prices =====
 
+
 def test_get_stock_prices_known_stocks():
     """Тест получения цен известных акций."""
     prices = get_stock_prices(["AAPL", "GOOGL"])
@@ -132,6 +139,7 @@ def test_get_stock_prices_unknown_stock():
 
 
 # ===== Тесты для format_date =====
+
 
 def test_format_date_from_string():
     """Тест форматирования строки даты."""
@@ -153,6 +161,7 @@ def test_format_date_with_time():
 
 
 # ===== Тесты для get_month_range =====
+
 
 def test_get_month_range_middle():
     """Тест получения диапазона месяца (середина года)."""
