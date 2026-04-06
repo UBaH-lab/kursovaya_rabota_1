@@ -1,12 +1,9 @@
 ﻿"""Дополнительные тесты для увеличения покрытия."""
 
 import json
-import os
-import tempfile
 from datetime import datetime
 
 import pandas as pd
-import pytest
 
 from src import reports, services
 
