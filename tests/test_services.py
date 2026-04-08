@@ -2,8 +2,6 @@
 
 import json
 
-import pytest
-
 from src.services import (
     cashback_categories,
     find_person_transfers,

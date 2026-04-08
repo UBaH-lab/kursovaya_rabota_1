@@ -2,7 +2,7 @@
 
 import json
 from datetime import datetime
-from unittest.mock import MagicMock, mock_open, patch
+from unittest.mock import MagicMock, patch
 
 import pandas as pd
 import pytest

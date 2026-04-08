@@ -5,7 +5,6 @@ from datetime import datetime
 from unittest.mock import mock_open, patch
 
 import pandas as pd
-import pytest
 
 from src import reports, utils, views
 
@@ -71,7 +70,7 @@ def test_save_report_decorator():
         return {"total": 100, "items": [1, 2, 3]}
 
     with patch("os.makedirs"):
-        with patch("builtins.open", mock_open()) as mock_file:
+        with patch("builtins.open", mock_open()):
             result = generate_test_report()
             assert result["total"] == 100
 

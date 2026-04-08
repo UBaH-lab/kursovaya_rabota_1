@@ -1,5 +1,8 @@
 # Python
 __pycache__/
+*.pyc
+.mypy_cache/
+.pytest_cache/
 *.py[cod]
 *.class
 *.so
@@ -20,10 +23,11 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual Environment
+# Virtual environments
 .venv/
 venv/
 ENV/
+env/
 
 # IDE
 .idea/
@@ -31,19 +35,21 @@ ENV/
 *.swp
 *.swo
 
+# Environment
+.env
+.env.local
+
 # Testing
 .pytest_cache/
 .coverage
 htmlcov/
 .tox/
-
-# Environment
-.env
-.env.local
+.nox/
+.coveragerc
 
 # Logs
 *.log
 
-# OS
-.DS_Store
-Thumbs.db
+# Data files
+*.xlsx
+!data/operations.xlsx

@@ -78,7 +78,7 @@ def main_page(date_time: str) -> str:
 
                 cards_data.append(
                     {
-                        "last_digits": card_num.replace("*", ""),
+                        "last_digits": str(card_num).replace("*", ""),
                         "total_spent": round(total_spent, 2),
                         "cashback": round(cashback, 2),
                     }
@@ -221,7 +221,7 @@ def events_page(transactions: Any, date: str, period: str = "M") -> str:
                 if len(cat_df) > 0:
                     transfers_cash.append({"category": cat, "amount": int(abs(cat_df[sum_col].sum()))})
             # Сортируем по убыванию
-            transfers_cash.sort(key=lambda x: x["amount"], reverse=True)
+            transfers_cash.sort(key=lambda x: int(str(x["amount"])), reverse=True)
 
         # ПОСТУПЛЕНИЯ
         income_df = df[df[sum_col] > 0] if sum_col and len(df) > 0 else pd.DataFrame()
@@ -244,7 +244,7 @@ def events_page(transactions: Any, date: str, period: str = "M") -> str:
         transfers_cash = []
         total_income = 0
         main_income = []
-        total_spent = 0.0
+        total_spent = 0
         total_transactions = 0
 
     # Курсы валют

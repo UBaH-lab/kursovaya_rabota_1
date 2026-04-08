@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 def cashback_categories(transactions: list[dict[str, Any]], year: int, month: int) -> dict[str, float]:
     """Возвращает кэшбэк по категориям за месяц."""
-    result = {}
+    result: dict[str, float] = {}
 
     for t in transactions:
         if "Дата операции" not in t or "Категория" not in t:
