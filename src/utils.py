@@ -72,7 +72,7 @@ def get_currency_rates(currencies: list[str]) -> dict[str, float]:
 
 
 def get_stock_prices(stocks: list[str]) -> dict[str, float]:
-    """Получает цены акций от API.
+    """Получает цены акций от Yahoo Finance API.
 
     Args:
         stocks: Список тикеров акций (например, ["AAPL", "GOOGL"]).
@@ -80,20 +80,21 @@ def get_stock_prices(stocks: list[str]) -> dict[str, float]:
     Returns:
         Словарь с ценами акций {тикер: цена}.
     """
-
-    # Заглушки для тестирования
-    mock_prices = {
-        "AAPL": 178.72,
-        "AMZN": 178.25,
-        "GOOGL": 141.80,
-        "MSFT": 378.91,
-        "TSLA": 248.50,
-    }
-
+    import yfinance as yf
+    
     result = {}
+    
     for stock in stocks:
-        result[stock] = mock_prices.get(stock, None)
-
+        try:
+            ticker = yf.Ticker(stock)
+            hist = ticker.history(period="1d")
+            if not hist.empty:
+                result[stock] = round(hist["Close"].iloc[-1], 2)
+            else:
+                result[stock] = None
+        except Exception:
+            result[stock] = None
+    
     return result
 
 
