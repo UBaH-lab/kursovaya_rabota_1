@@ -2,7 +2,6 @@
 
 import json
 
-
 from src.services import (
     cashback_categories,
     find_person_transfers,
